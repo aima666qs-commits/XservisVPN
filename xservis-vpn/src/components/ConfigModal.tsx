@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 
 interface ConfigModalProps {
@@ -14,7 +14,34 @@ const FREE_PORTS = [10809, 20808, 30808, 10810, 20809, 10811, 40808, 50808];
 export default function ConfigModal({ open, onClose }: ConfigModalProps) {
   const { currentServer, currentSni, currentPort, currentProtocol } = useStore();
   const [tab, setTab] = useState<ConfigTab>('json');
-  const [localPort, setLocalPort] = useState(10809); // Default non-conflicting
+
+  // Авто-подхват порта из PortErrorAlert
+  const savedPort = parseInt(localStorage.getItem('xservis_local_port') || '10809');
+  const [localPort, setLocalPort] = useState(savedPort);
+
+  // Слушаем событие от PortErrorAlert
+  useEffect(() => {
+    const handler1 = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.port) {
+        setLocalPort(detail.port);
+        localStorage.setItem('xservis_local_port', String(detail.port));
+      }
+    };
+    const handler2 = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.port) {
+        setLocalPort(detail.port);
+        localStorage.setItem('xservis_local_port', String(detail.port));
+      }
+    };
+    window.addEventListener('xservis-port-found', handler1);
+    window.addEventListener('xservis-apply-port', handler2);
+    return () => {
+      window.removeEventListener('xservis-port-found', handler1);
+      window.removeEventListener('xservis-apply-port', handler2);
+    };
+  }, []);
 
   const getConfig = (type: ConfigTab): string => {
     if (!currentServer) return '// Нет активного сервера';
@@ -119,44 +146,23 @@ export default function ConfigModal({ open, onClose }: ConfigModalProps) {
             onClick={e => e.stopPropagation()}
             style={{ maxHeight: '85vh', overflowY: 'auto' }}
           >
-            {/* Local port selector */}
-            <div
-              className="rounded-xl p-3 mb-4 flex items-center gap-3"
-              style={{ background: 'rgba(255,145,0,0.06)', border: '1px solid rgba(255,145,0,0.15)' }}
-            >
-              <span className="text-sm">🔌</span>
-              <div className="flex-1">
-                <div className="text-xs font-semibold">Локальный порт SOCKS</div>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {FREE_PORTS.slice(0, 4).map(p => (
-                    <motion.button
-                      key={p}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setLocalPort(p)}
-                      className="px-2.5 py-1 rounded-md text-[10px] font-mono font-medium cursor-pointer border-none"
-                      style={{
-                        background: localPort === p ? 'var(--primary)' : 'var(--surface)',
-                        color: localPort === p ? '#000' : 'var(--text)',
-                        border: localPort === p ? 'none' : '1px solid var(--card-border)',
-                      }}
-                    >
-                      {p}
-                    </motion.button>
-                  ))}
-                  <input
-                    type="number"
-                    value={localPort}
-                    onChange={e => setLocalPort(Number(e.target.value) || 10809)}
-                    className="w-16 px-1.5 py-1 rounded-md text-[10px] font-mono outline-none border-none"
-                    style={{ background: 'var(--surface)', border: '1px solid var(--card-border)', color: 'var(--text)' }}
-                    placeholder="10809"
-                  />
-                </div>
-                <div className="text-[9px] mt-1" style={{ color: 'var(--text-secondary)' }}>
-                  ⚠ Если порт 10808 занят — используй {localPort}
-                </div>
-              </div>
-            </div>
+      {/* Auto port status */}
+      <div
+        className="rounded-xl p-3 mb-4 flex items-center gap-3"
+        style={{ background: localPort !== 10809 ? 'rgba(0,230,118,0.06)' : 'rgba(255,145,0,0.06)', border: `1px solid ${localPort !== 10809 ? 'rgba(0,230,118,0.15)' : 'rgba(255,145,0,0.15)'}` }}
+      >
+        <span className="text-sm">{localPort !== 10809 ? '✅' : '🔌'}</span>
+        <div className="flex-1">
+          <div className="text-xs font-semibold" style={{ color: localPort !== 10809 ? 'var(--success)' : 'var(--text)' }}>
+            {localPort !== 10809 ? `Порт ${localPort} свободен` : 'Локальный порт SOCKS'}
+          </div>
+          <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+            {localPort !== 10809
+              ? `Порт 10808 был занят — автоматически выбран ${localPort}`
+              : 'Автоматически выберу свободный'}
+          </div>
+        </div>
+      </div>
 
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">📋 Конфигурация</h3>
