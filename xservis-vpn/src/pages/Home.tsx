@@ -5,9 +5,11 @@ import ScanSteps from '../components/ScanSteps';
 import StatsCard from '../components/StatsCard';
 import ServerCard from '../components/ServerCard';
 import ConfigModal from '../components/ConfigModal';
+import PortErrorAlert from '../components/PortErrorAlert';
 
 export default function Home() {
   const [showConfig, setShowConfig] = useState(false);
+  const [showPortHelp, setShowPortHelp] = useState(false);
 
   return (
     <div className="px-4 pb-28">
@@ -62,6 +64,13 @@ export default function Home() {
         AI автоматически подбирает лучший сервер, маршрут, SNI, транспорт и порт.
       </motion.p>
 
+      {/* Port Error Alert */}
+      <PortErrorAlert
+        open={showPortHelp}
+        onClose={() => setShowPortHelp(false)}
+        onOpen={() => setShowPortHelp(true)}
+      />
+
       {/* Connect Button */}
       <ConnectButton />
 
@@ -72,7 +81,7 @@ export default function Home() {
       <StatsCard />
 
       {/* Server Card */}
-      <ServerCard onShowConfig={() => setShowConfig(true)} />
+      <ServerCard onShowConfig={() => setShowConfig(true)} onPortHelp={() => setShowPortHelp(true)} />
 
       {/* Config Modal */}
       <ConfigModal open={showConfig} onClose={() => setShowConfig(false)} />

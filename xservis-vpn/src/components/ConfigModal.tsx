@@ -9,18 +9,23 @@ interface ConfigModalProps {
 
 type ConfigTab = 'json' | 'vless' | 'hysteria2' | 'link';
 
+const FREE_PORTS = [10809, 20808, 30808, 10810, 20809, 10811, 40808, 50808];
+
 export default function ConfigModal({ open, onClose }: ConfigModalProps) {
   const { currentServer, currentSni, currentPort, currentProtocol } = useStore();
   const [tab, setTab] = useState<ConfigTab>('json');
+  const [localPort, setLocalPort] = useState(10809); // Default non-conflicting
 
   const getConfig = (type: ConfigTab): string => {
     if (!currentServer) return '// Нет активного сервера';
-    const cfg = currentServer.config;
+    const cfg = JSON.parse(JSON.stringify(currentServer.config));
+
+    if (type === 'json') {
+      const raw = JSON.stringify(cfg, null, 2);
+      return raw;
+    }
 
     switch (type) {
-      case 'json':
-        return JSON.stringify(cfg, null, 2);
-
       case 'vless': {
         const params = new URLSearchParams({
           type: cfg.network || 'tcp',
@@ -55,7 +60,9 @@ export default function ConfigModal({ open, onClose }: ConfigModalProps) {
   const copyConfig = () => {
     const text = getConfig(tab);
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(text).then(() => {
+        // Show toast
+      });
     }
   };
 
@@ -112,6 +119,45 @@ export default function ConfigModal({ open, onClose }: ConfigModalProps) {
             onClick={e => e.stopPropagation()}
             style={{ maxHeight: '85vh', overflowY: 'auto' }}
           >
+            {/* Local port selector */}
+            <div
+              className="rounded-xl p-3 mb-4 flex items-center gap-3"
+              style={{ background: 'rgba(255,145,0,0.06)', border: '1px solid rgba(255,145,0,0.15)' }}
+            >
+              <span className="text-sm">🔌</span>
+              <div className="flex-1">
+                <div className="text-xs font-semibold">Локальный порт SOCKS</div>
+                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                  {FREE_PORTS.slice(0, 4).map(p => (
+                    <motion.button
+                      key={p}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setLocalPort(p)}
+                      className="px-2.5 py-1 rounded-md text-[10px] font-mono font-medium cursor-pointer border-none"
+                      style={{
+                        background: localPort === p ? 'var(--primary)' : 'var(--surface)',
+                        color: localPort === p ? '#000' : 'var(--text)',
+                        border: localPort === p ? 'none' : '1px solid var(--card-border)',
+                      }}
+                    >
+                      {p}
+                    </motion.button>
+                  ))}
+                  <input
+                    type="number"
+                    value={localPort}
+                    onChange={e => setLocalPort(Number(e.target.value) || 10809)}
+                    className="w-16 px-1.5 py-1 rounded-md text-[10px] font-mono outline-none border-none"
+                    style={{ background: 'var(--surface)', border: '1px solid var(--card-border)', color: 'var(--text)' }}
+                    placeholder="10809"
+                  />
+                </div>
+                <div className="text-[9px] mt-1" style={{ color: 'var(--text-secondary)' }}>
+                  ⚠ Если порт 10808 занят — используй {localPort}
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">📋 Конфигурация</h3>
               <motion.button

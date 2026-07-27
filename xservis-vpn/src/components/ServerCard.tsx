@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { useStore, SNI_LIST, PORT_LIST } from '../store/useStore';
 import { aiSelectServer } from '../types/ai';
+import { AlertTriangle } from 'lucide-react';
 
-export default function ServerCard({ onShowConfig }: { onShowConfig: () => void }) {
+export default function ServerCard({ onShowConfig, onPortHelp }: { onShowConfig: () => void; onPortHelp: () => void }) {
   const {
     isConnected, currentServer, currentSni, currentPort,
     currentProtocol, setServer, setSni, setPort,
@@ -73,6 +74,17 @@ export default function ServerCard({ onShowConfig }: { onShowConfig: () => void 
           🎭 {currentServer.config.realitySettings?.fingerprint || 'chrome'}
         </span>
       </div>
+
+      {/* Port error hint */}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        onClick={onPortHelp}
+        className="flex items-center gap-1.5 mb-3 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer border-none"
+        style={{ background: 'rgba(255,82,82,0.08)', border: '1px solid rgba(255,82,82,0.15)', color: 'var(--danger)' }}
+      >
+        <AlertTriangle size={12} />
+        Ошибка «10808 уже используется»? Решение
+      </motion.button>
 
       {/* Actions */}
       <div className="flex gap-3">
