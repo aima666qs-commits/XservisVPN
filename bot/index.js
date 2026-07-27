@@ -9,7 +9,7 @@ import fs from 'fs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TOKEN = '8690746870:AAEFWCGBM59QT48UxqrEixyMECg4v4oiQiI';
 const PORT = process.env.PORT || 3000;
-const APP_URL = process.env.APP_URL || `https://xservisvpn.vercel.app`;
+const APP_URL = process.env.APP_URL || `https://aima666qs-commits.github.io/XservisVPN`;
 
 const bot = new Telegraf(TOKEN);
 const app = express();
