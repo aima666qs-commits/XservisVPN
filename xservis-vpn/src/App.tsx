@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import TabBar from './components/TabBar';
 import SettingsPanel from './components/SettingsPanel';
 import ThemeSelector from './components/ThemeSelector';
+import DiagnosticsPage from './pages/DiagnosticsPage';
 import Home from './pages/Home';
 import Servers from './pages/Servers';
 import Stats from './pages/Stats';
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/ai" element={<PageTransition><AiPage /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsPanel /></PageTransition>} />
           <Route path="/settings/themes" element={<PageTransition><ThemeSelector /></PageTransition>} />
+          <Route path="/settings/diag" element={<PageTransition><DiagnosticsPage /></PageTransition>} />
         </Routes>
       </AnimatePresence>
 
