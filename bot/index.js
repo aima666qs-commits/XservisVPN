@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TOKEN = '8690746870:AAEFWCGBM59QT48UxqrEixyMECg4v4oiQiI';
+const TOKEN = '8140147139:AAFV2IAQxkPCpLCkqPG7D5RKS6K6t2w6M2s'; // @Xserv1sbot
 const PORT = process.env.PORT || 3000;
 const APP_URL = process.env.APP_URL || `https://aima666qs-commits.github.io/XservisVPN`;
 

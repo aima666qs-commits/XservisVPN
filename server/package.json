@@ -1,0 +1,19 @@
+{
+  "name": "xservisvpn-server",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "prod": "pm2 start index.js --name xservisvpn"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "compression": "^1.7.4",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.16.3"
+  }
+}
